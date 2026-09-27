@@ -4,7 +4,7 @@ import { Cart } from './components/Models/Cart';
 import { Customer } from './components/Models/Customer';
 import { apiProducts } from './utils/data';
 import { Api } from './components/base/Api';
-import { WebLarekApi } from './components/base/WebLarekApi';
+import { WebLarekApi } from './components/api/WebLarekApi';
 import { API_URL } from './utils/constants';
 
 // --- Проверка модели Products ---
@@ -14,6 +14,8 @@ productsModel.setItems(apiProducts.items);
 console.log('Массив товаров из каталога:', productsModel.getItems());
 console.log('Товар по id (первый):', productsModel.getItem(apiProducts.items[0].id));
 console.log('Товар по несуществующему id:', productsModel.getItem('nonexistent'));
+productsModel.setPreview(productsModel.getItems()[0]);
+console.log('Товар для детального просмотра:', productsModel.getPreview());
 
 // --- Проверка модели Cart ---
 const cartModel = new Cart();
@@ -39,16 +41,15 @@ console.log('После очистки корзины:', cartModel.getItems());
 // --- Проверка модели Customer ---
 const customerModel = new Customer();
 
-console.log('Валидация шага 1 (пустые данные):', customerModel.validateStep1());
-console.log('Валидация шага 2 (пустые данные):', customerModel.validateStep2());
+console.log('Ошибки валидации (пустые данные):', customerModel.validateBuyer());
 
 customerModel.setPayment('card');
 customerModel.setAddress('Spb Vosstania 1');
-console.log('Валидация шага 1 (после заполнения):', customerModel.validateStep1());
+console.log('Ошибки валидации (частично заполнено):', customerModel.validateBuyer());
 
 customerModel.setEmail('test@test.ru');
 customerModel.setPhone('+71234567890');
-console.log('Валидация шага 2 (после заполнения):', customerModel.validateStep2());
+console.log('Ошибки валидации (все поля заполнены):', customerModel.validateBuyer());
 console.log('Данные покупателя:', customerModel.getData());
 
 customerModel.clear();

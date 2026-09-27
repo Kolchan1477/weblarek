@@ -1,4 +1,4 @@
-import { ICustomer, PaymentMethod } from '../../types';
+import { ICustomer, PaymentMethod, TErrors } from '../../types';
 
 export class Customer {
     private payment: PaymentMethod = '';
@@ -8,7 +8,6 @@ export class Customer {
 
     /**
      * Устанавливает способ оплаты.
-     * @param method - способ оплаты ('card' | 'cash' | '')
      */
     setPayment(method: PaymentMethod): void {
         this.payment = method;
@@ -16,23 +15,20 @@ export class Customer {
 
     /**
      * Устанавливает адрес доставки.
-     * @param address - адрес
      */
     setAddress(address: string): void {
         this.address = address;
     }
 
     /**
-     * Устанавливает email.
-     * @param email - электронная почта
+     * Устанавливает email покупателя.
      */
     setEmail(email: string): void {
         this.email = email;
     }
 
     /**
-     * Устанавливает телефон.
-     * @param phone - номер телефона
+     * Устанавливает телефон покупателя.
      */
     setPhone(phone: string): void {
         this.phone = phone;
@@ -51,17 +47,24 @@ export class Customer {
     }
 
     /**
-     * Проверяет корректность данных для первого шага оформления (оплата и адрес).
+     * Проверяет данные покупателя и возвращает объект с ошибками валидации.
+     * Если все поля заполнены — возвращает пустой объект.
      */
-    validateStep1(): boolean {
-        return this.payment !== '' && this.address.trim() !== '';
-    }
-
-    /**
-     * Проверяет корректность данных для второго шага оформления (email и телефон).
-     */
-    validateStep2(): boolean {
-        return this.email.trim() !== '' && this.phone.trim() !== '';
+    validateBuyer(): TErrors {
+        const errors: TErrors = {};
+        if (!this.payment) {
+            errors.payment = 'Необходимо выбрать способ оплаты';
+        }
+        if (!this.email) {
+            errors.email = 'Необходимо указать email';
+        }
+        if (!this.phone) {
+            errors.phone = 'Необходимо указать телефон';
+        }
+        if (!this.address) {
+            errors.address = 'Необходимо указать адрес';
+        }
+        return errors;
     }
 
     /**

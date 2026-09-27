@@ -31,18 +31,17 @@ export interface ICustomer {
     phone: string;
 }
 
+// Тип для хранения ошибок валидации
+export type TErrors = Partial<Record<keyof ICustomer, string>>;
+
 // Ответ сервера: список товаров
 export interface IProductListResponse {
     total: number;
     items: IProduct[];
 }
 
-// Запрос на создание заказа
-export interface IOrderRequest {
-    payment: PaymentMethod;
-    email: string;
-    phone: string;
-    address: string;
+// Запрос на создание заказа — наследует поля ICustomer
+export interface IOrderRequest extends ICustomer {
     total: number;
     items: string[];
 }
