@@ -9,22 +9,35 @@
 ## Структура проекта
 
 ```
-src/
+  src/
 ├── components/
 │   ├── base/                  # Базовые классы стартера
 │   │   ├── Api.ts
 │   │   ├── Component.ts
 │   │   └── Events.ts
+│   ├── api/                   # Слой коммуникации
+│   │   └── WebLarekApi.ts
 │   ├── Models/                # Модели данных
 │   │   ├── Products.ts
 │   │   ├── Cart.ts
 │   │   └── Customer.ts
-│   └── api/                   # Слой коммуникации
-│       └── WebLarekApi.ts
+│   └── View/                  # Компоненты представления
+│       ├── Modal.ts
+│       ├── Form.ts
+│       ├── Success.ts
+│       ├── Header.ts
+│       ├── Gallery.ts
+│       ├── Card.ts
+│       ├── CardCatalog.ts
+│       ├── CardPreview.ts
+│       ├── CardBasket.ts
+│       ├── Basket.ts
+│       ├── OrderForm.ts
+│       └── ContactsForm.ts
 ├── types/
 │   └── index.ts               # Типы и интерфейсы
 ├── utils/
-│   ├── constants.ts           # Константы (API_URL, CDN_URL, categoryMap)
+│   ├── constants.ts           # Константы
 │   └── data.ts                # Тестовые данные
 ├── scss/
 │   └── styles.scss            # Корневой файл стилей
@@ -360,3 +373,300 @@ export interface IApiError {
 
 ---
 
+## Слой представления (View)
+
+Слой представления отвечает за отображение данных на странице и генерацию событий при действиях пользователя. Каждый компонент работает со своим блоком разметки и не зависит от других компонентов напрямую — взаимодействие идёт через брокер событий `EventEmitter`.
+
+Все компоненты наследуются от абстрактного класса `Component<T>`.
+
+### Класс `Modal`
+
+Универсальное модальное окно. Отвечает за отображение содержимого, открытие и закрытие по клику на крестик или вне окна. Не имеет дочерних классов.
+
+**Конструктор:**
+- `constructor(container: HTMLElement, events: IEvents)` — принимает корневой элемент модального окна и брокер событий.
+
+**Поля класса:**
+- `closeButton: HTMLButtonElement` — кнопка закрытия.
+- `contentElement: HTMLElement` — контейнер для содержимого.
+- `events: IEvents` — брокер событий.
+
+**Методы класса:**
+- `open(): void` — открывает модальное окно, добавляя класс `modal_active`. Эмитит событие `modal:open`.
+- `close(): void` — закрывает модальное окно, удаляя класс `modal_active` и очищая содержимое. Эмитит событие `modal:close`.
+- `render(data: IModalData): HTMLElement` — рендерит окно с переданным содержимым и открывает его.
+
+**Сеттеры:**
+- `set content(value: HTMLElement)` — вставляет переданный элемент в `.modal__content`.
+
+---
+
+### Класс `Form<T>` (абстрактный)
+
+Базовый класс для форм. Содержит общую логику: обработку отправки, управление состоянием кнопки, вывод ошибок.
+
+**Конструктор:**
+- `constructor(container: HTMLElement, events: IEvents)` — принимает корневой элемент формы и брокер событий.
+
+**Поля класса:**
+- `submitButton: HTMLButtonElement` — кнопка отправки формы.
+- `errorsElement: HTMLElement` — контейнер для вывода ошибок.
+- `events: IEvents` — брокер событий.
+
+**Методы класса:**
+- `set buttonState(isEnabled: boolean)` — управляет состоянием кнопки отправки.
+- `set errors(errors: string[])` — выводит сообщения об ошибках.
+- `protected clearErrors(): void` — очищает сообщения об ошибках.
+- `protected abstract onSubmit(): void` — абстрактный метод отправки формы, реализуется в дочерних классах.
+
+---
+
+### Класс `Success`
+
+Сообщение об успешном оформлении заказа.
+
+**Конструктор:**
+- `constructor(container: HTMLElement, events: IEvents)` — принимает корневой элемент и брокер событий.
+
+**Поля класса:**
+- `descriptionElement: HTMLElement` — текстовый блок с суммой.
+- `closeButton: HTMLButtonElement` — кнопка закрытия.
+- `events: IEvents` — брокер событий.
+
+**Методы класса:**
+- `set total(value: number)` — устанавливает сумму заказа в описании.
+
+**События:**
+- `success:close` — эмитится при клике на кнопку «За новыми покупками!».
+
+---
+
+### Класс `Header`
+
+Шапка сайта с иконкой корзины и счётчиком товаров.
+
+**Конструктор:**
+- `constructor(container: HTMLElement, events: IEvents)` — принимает корневой элемент и брокер событий.
+
+**Поля класса:**
+- `basketButton: HTMLButtonElement` — иконка корзины.
+- `counterElement: HTMLElement` — счётчик товаров.
+- `events: IEvents` — брокер событий.
+
+**Методы класса:**
+- `set counter(value: number)` — устанавливает значение счётчика.
+
+**События:**
+- `basket:open` — эмитится при клике на иконку корзины.
+
+---
+
+### Класс `Gallery`
+
+Каталог товаров на главной странице.
+
+**Конструктор:**
+- `constructor(container: HTMLElement)` — принимает корневой элемент.
+
+**Поля класса:**
+- `container: HTMLElement` — корневой элемент галереи.
+
+**Методы класса:**
+- `set items(elements: HTMLElement[])` — заменяет содержимое галереи переданным массивом карточек.
+
+---
+
+### Класс `Card<T>` (абстрактный)
+
+Базовый класс для всех карточек товара. Содержит общий функционал: установку названия, цены, изображения, категории.
+
+**Конструктор:**
+- `constructor(container: HTMLElement)` — принимает корневой элемент.
+
+**Поля класса:**
+- `titleElement: HTMLElement` — элемент названия.
+- `priceElement: HTMLElement` — элемент цены.
+- `imageElement: HTMLImageElement` — элемент изображения.
+
+**Методы класса:**
+- `set title(value: string)` — устанавливает название.
+- `set price(value: number | null)` — устанавливает цену или «Недоступно».
+- `set image(value: string)` — устанавливает изображение, склеивая `CDN_URL` с путём.
+- `protected setCategory(value: string, element: HTMLElement): void` — устанавливает категорию и соответствующий CSS-модификатор.
+
+---
+
+### Класс `CardCatalog`
+
+Карточка товара в каталоге. Наследуется от `Card`.
+
+**Конструктор:**
+- `constructor(container: HTMLElement, events: IEvents)` — принимает корневой элемент и брокер событий.
+
+**Поля класса:**
+- `categoryElement: HTMLElement` — элемент категории.
+- `events: IEvents` — брокер событий.
+
+**Методы класса:**
+- `set category(value: string)` — устанавливает категорию.
+- `set id(value: string)` — сохраняет id товара в `dataset.id` контейнера.
+
+**События:**
+- `card:select` — эмитится при клике на карточку с `{ id: string }`.
+
+---
+
+### Класс `CardPreview`
+
+Карточка товара в модальном окне. Наследуется от `Card`. Дополнительно показывает описание, цену и кнопку действия.
+
+**Конструктор:**
+- `constructor(container: HTMLElement, events: IEvents)` — принимает корневой элемент и брокер событий.
+
+**Поля класса:**
+- `categoryElement: HTMLElement` — элемент категории.
+- `descriptionElement: HTMLElement` — элемент описания.
+- `buttonElement: HTMLButtonElement` — кнопка действия.
+- `events: IEvents` — брокер событий.
+- `currentId: string | null` — id текущего товара.
+- `currentPrice: number | null` — цена текущего товара.
+
+**Методы класса:**
+- `set category(value: string)` — устанавливает категорию.
+- `set description(value: string)` — устанавливает описание.
+- `set id(value: string)` — сохраняет id товара.
+- `set state({ isInCart }: ICardPreviewState)` — управляет состоянием кнопки: «Недоступно», «В корзину» или «Удалить из корзины».
+- `set price(value: number | null)` — устанавливает цену и запоминает её в `currentPrice`.
+
+**События:**
+- `card:buy` — эмитится при клике на «В корзину» с `{ id: string }`.
+- `card:remove` — эмитится при клике на «Удалить из корзины» с `{ id: string }`.
+
+---
+
+### Класс `CardBasket`
+
+Карточка товара в корзине. Наследуется от `Card`. Дополнительно показывает индекс позиции и кнопку удаления.
+
+**Конструктор:**
+- `constructor(container: HTMLElement, events: IEvents)` — принимает корневой элемент и брокер событий.
+
+**Поля класса:**
+- `indexElement: HTMLElement` — элемент индекса.
+- `deleteButton: HTMLButtonElement` — кнопка удаления.
+- `events: IEvents` — брокер событий.
+- `currentId: string | null` — id товара.
+
+**Методы класса:**
+- `set index(value: number)` — устанавливает индекс позиции.
+- `set id(value: string)` — сохраняет id товара.
+
+**События:**
+- `basket:remove` — эмитится при клике на кнопку удаления с `{ id: string }`.
+
+---
+
+### Класс `Basket`
+
+Корзина с товарами. Отображает список, общую стоимость и кнопку оформления.
+
+**Конструктор:**
+- `constructor(container: HTMLElement, events: IEvents)` — принимает корневой элемент и брокер событий.
+
+**Поля класса:**
+- `listElement: HTMLElement` — контейнер списка товаров.
+- `priceElement: HTMLElement` — элемент общей стоимости.
+- `orderButton: HTMLButtonElement` — кнопка «Оформить».
+- `events: IEvents` — брокер событий.
+
+**Методы класса:**
+- `set items(elements: HTMLElement[])` — устанавливает список карточек. Если массив пуст — выводит текст «Корзина пуста».
+- `set total(value: number)` — устанавливает общую стоимость.
+- `set isEmpty(value: boolean)` — управляет состоянием кнопки «Оформить».
+
+**События:**
+- `order:open` — эмитится при клике на «Оформить».
+
+---
+
+### Класс `OrderForm`
+
+Первая форма оформления заказа: выбор способа оплаты и ввод адреса. Наследуется от `Form<ICustomer>`.
+
+**Конструктор:**
+- `constructor(container: HTMLElement, events: IEvents)` — принимает корневой элемент и брокер событий.
+
+**Поля класса:**
+- `paymentButtons: HTMLButtonElement[]` — кнопки выбора оплаты.
+- `addressInput: HTMLInputElement` — поле ввода адреса.
+
+**Методы класса:**
+- `set payment(value: PaymentMethod)` — подсвечивает активный способ оплаты.
+- `set address(value: string)` — устанавливает значение поля адреса.
+- `protected onSubmit(): void` — эмитит событие отправки формы.
+
+**События:**
+- `order:change` — эмитится при изменении данных формы (выбор оплаты или ввод адреса) с `{ payment?, address? }`.
+- `order:submit` — эмитится при отправке формы.
+
+---
+
+### Класс `ContactsForm`
+
+Вторая форма оформления: email и телефон. Наследуется от `Form<ICustomer>`.
+
+**Конструктор:**
+- `constructor(container: HTMLElement, events: IEvents)` — принимает корневой элемент и брокер событий.
+
+**Поля класса:**
+- `emailInput: HTMLInputElement` — поле email.
+- `phoneInput: HTMLInputElement` — поле телефона.
+
+**Методы класса:**
+- `set email(value: string)` — устанавливает email.
+- `set phone(value: string)` — устанавливает телефон.
+- `protected onSubmit(): void` — эмитит событие отправки формы.
+
+**События:**
+- `contacts:change` — эмитится при изменении данных формы с `{ email?, phone? }`.
+- `contacts:submit` — эмитится при отправке формы.
+
+---
+
+## События приложения
+
+Все события описаны в константе `EVENTS` в `src/utils/constants.ts`.
+
+| Константа | Событие | Описание |
+|---|---|---|
+| `ITEMS_CHANGED` | `items:changed` | Каталог товаров загружен или обновлён |
+| `CARD_SELECT` | `card:select` | Пользователь выбрал карточку в каталоге |
+| `PREVIEW_CHANGED` | `preview:changed` | Превью товара обновлено |
+| `CARD_BUY` | `card:buy` | Пользователь нажал «В корзину» |
+| `CARD_REMOVE` | `card:remove` | Пользователь нажал «Удалить из корзины» |
+| `BASKET_OPEN` | `basket:open` | Пользователь открыл корзину |
+| `BASKET_CHANGED` | `basket:changed` | Корзина изменилась |
+| `BASKET_REMOVE` | `basket:remove` | Пользователь удалил товар из корзины |
+| `ORDER_OPEN` | `order:open` | Пользователь открыл форму оформления |
+| `ORDER_CHANGE` | `order:change` | Данные формы оформления изменились |
+| `ORDER_SUBMIT` | `order:submit` | Первая форма отправлена |
+| `CONTACTS_CHANGE` | `contacts:change` | Данные формы контактов изменились |
+| `CONTACTS_SUBMIT` | `contacts:submit` | Вторая форма отправлена |
+| `ORDER_SUCCESS` | `order:success` | Заказ успешно оформлен |
+| `MODAL_OPEN` | `modal:open` | Модальное окно открыто |
+| `MODAL_CLOSE` | `modal:close` | Модальное окно закрыто |
+| `SUCCESS_CLOSE` | `success:close` | Пользователь закрыл сообщение об успехе |
+
+---
+
+## План разработки
+
+| Шаг | Этап | Статус |
+|---|---|---|
+| 0 | Анализ макета и стартового набора | ✅ |
+| 1 | Проектирование архитектуры | ✅ |
+| 2 | Документирование | ✅ |
+| 3 | Реализация моделей данных | ✅ |
+| 4 | Реализация слоя коммуникации | ✅ |
+| 5 | Создание компонентов View | ✅ |
+| 6 | Реализация Presenter и связывание слоёв | ✅ |

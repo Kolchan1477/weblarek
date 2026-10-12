@@ -20,3 +20,34 @@ export const settings = {
 
 };
 
+/* Константы событий приложения. Используются для связи Model, View и Presenter. */
+export const EVENTS = {
+    // Каталог
+    ITEMS_CHANGED: 'items:changed',
+    CARD_SELECT: 'card:select',
+    PREVIEW_CHANGED: 'preview:changed',
+
+    // Действия с товаром
+    CARD_BUY: 'card:buy',
+    CARD_REMOVE: 'card:remove',
+
+    // Корзина
+    BASKET_OPEN: 'basket:open',
+    BASKET_CHANGED: 'basket:changed',
+    BASKET_REMOVE: 'basket:remove',
+
+    // Оформление заказа
+    ORDER_OPEN: 'order:open',
+    ORDER_CHANGE: 'order:change',
+    ORDER_SUBMIT: 'order:submit',
+    CONTACTS_CHANGE: 'contacts:change',
+    CONTACTS_SUBMIT: 'contacts:submit',
+    ORDER_SUCCESS: 'order:success',
+
+    // Модальное окно
+    MODAL_OPEN: 'modal:open',
+    MODAL_CLOSE: 'modal:close',
+
+    // Успех
+    SUCCESS_CLOSE: 'success:close',
+} as const;
