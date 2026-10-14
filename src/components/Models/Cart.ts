@@ -1,22 +1,29 @@
 import { IProduct } from '../../types';
+import { IEvents } from '../base/Events';
+import { EVENTS } from '../../utils/constants';
 
 export class Cart {
-    private items: IProduct[] = []; // Приватное поле для хранения товаров в корзине
+    private items: IProduct[] = [];
+    protected events: IEvents;
 
-    /**
-     * Добавляет товар в корзину.
-     * @param item - товар для добавления
-     */
-    addItem(item: IProduct): void {
-        this.items.push(item);
+    constructor(events: IEvents) {
+        this.events = events;
     }
 
     /**
-     * Удаляет товар из корзины по его id.
-     * @param id - идентификатор товара
+     * Добавляет товар в корзину и эмитит событие.
+     */
+    addItem(item: IProduct): void {
+        this.items.push(item);
+        this.events.emit(EVENTS.BASKET_CHANGED);
+    }
+
+    /**
+     * Удаляет товар из корзины по id и эмитит событие.
      */
     removeItem(id: string): void {
         this.items = this.items.filter(item => item.id !== id);
+        this.events.emit(EVENTS.BASKET_CHANGED);
     }
 
     /**
@@ -41,15 +48,15 @@ export class Cart {
     }
 
     /**
-     * Очищает корзину.
+     * Очищает корзину и эмитит событие.
      */
     clear(): void {
         this.items = [];
+        this.events.emit(EVENTS.BASKET_CHANGED);
     }
 
     /**
-     * Проверяет, есть ли товар в корзине по его id.
-     * @param id - идентификатор товара
+     * Проверяет наличие товара в корзине по id.
      */
     hasItem(id: string): boolean {
         return this.items.some(item => item.id === id);

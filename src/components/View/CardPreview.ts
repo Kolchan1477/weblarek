@@ -1,41 +1,30 @@
-import { Card } from './Card';
+import { CardWithImage } from './CardWithImage';
 import { IProduct } from '../../types';
-import { IEvents } from '../base/Events';
-import { EVENTS } from '../../utils/constants';
 
 interface ICardPreviewState {
     isInCart: boolean;
 }
 
-// Расширяем IProduct состоянием кнопки
 interface ICardPreviewData extends IProduct {
     state: ICardPreviewState;
 }
 
-export class CardPreview extends Card<ICardPreviewData> {
+export class CardPreview extends CardWithImage<ICardPreviewData> {
     protected categoryElement: HTMLElement;
     protected descriptionElement: HTMLElement;
     protected buttonElement: HTMLButtonElement;
-    protected events: IEvents;
-    protected currentId: string | null = null;
-    protected currentPrice: number | null = null;
+    protected onAction: () => void;
 
-    constructor(container: HTMLElement, events: IEvents) {
+    constructor(container: HTMLElement, onAction: () => void) {
         super(container);
-        this.events = events;
 
+        this.onAction = onAction;
         this.categoryElement = container.querySelector('.card__category') as HTMLElement;
         this.descriptionElement = container.querySelector('.card__text') as HTMLElement;
         this.buttonElement = container.querySelector('.card__button') as HTMLButtonElement;
 
         this.buttonElement.addEventListener('click', () => {
-            if (this.currentId === null || this.currentPrice === null) return;
-
-            if (this.buttonElement.textContent === 'В корзину') {
-                this.events.emit(EVENTS.CARD_BUY, { id: this.currentId });
-            } else {
-                this.events.emit(EVENTS.CARD_REMOVE, { id: this.currentId });
-            }
+            this.onAction();
         });
     }
 
@@ -47,32 +36,16 @@ export class CardPreview extends Card<ICardPreviewData> {
         this.descriptionElement.textContent = value;
     }
 
-    set id(value: string) {
-        this.currentId = value;
-    }
-
     /**
-     * Обновляет состояние кнопки в зависимости от наличия товара в корзине
-     * и наличия цены.
+     * Управляет состоянием кнопки: «Бесценно», «В корзину» или «Удалить из корзины».
      */
     set state({ isInCart }: ICardPreviewState) {
-        if (this.currentPrice === null) {
-            this.buttonElement.textContent = 'Недоступно';
+        if (this.priceElement.textContent === 'Бесценно') {
+            this.buttonElement.textContent = 'Бесценно';
             this.buttonElement.disabled = true;
             return;
         }
         this.buttonElement.disabled = false;
         this.buttonElement.textContent = isInCart ? 'Удалить из корзины' : 'В корзину';
-    }
-
-    /**
-     * Запоминаем цену и обновляем её отображение.
-     * Не используем super.price, потому что это не вызывает родительский сеттер.
-     */
-    set price(value: number | null) {
-        this.currentPrice = value;
-        this.priceElement.textContent = value === null
-            ? 'Недоступно'
-            : `${value} синапсов`;
     }
 }

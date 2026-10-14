@@ -1,9 +1,6 @@
 import { Card } from './Card';
 import { IProduct } from '../../types';
-import { IEvents } from '../base/Events';
-import { EVENTS } from '../../utils/constants';
 
-// Расширяем IProduct индексом позиции в корзине
 interface ICardBasketData extends IProduct {
     index: number;
 }
@@ -11,20 +8,18 @@ interface ICardBasketData extends IProduct {
 export class CardBasket extends Card<ICardBasketData> {
     protected indexElement: HTMLElement;
     protected deleteButton: HTMLButtonElement;
-    protected events: IEvents;
-    protected currentId: string | null = null;
+    protected onDelete: (id: string) => void;
+    protected currentId: string = '';
 
-    constructor(container: HTMLElement, events: IEvents) {
+    constructor(container: HTMLElement, onDelete: (id: string) => void) {
         super(container);
-        this.events = events;
 
+        this.onDelete = onDelete;
         this.indexElement = container.querySelector('.basket__item-index') as HTMLElement;
         this.deleteButton = container.querySelector('.basket__item-delete') as HTMLButtonElement;
 
         this.deleteButton.addEventListener('click', () => {
-            if (this.currentId !== null) {
-                this.events.emit(EVENTS.BASKET_REMOVE, { id: this.currentId });
-            }
+            this.onDelete(this.currentId);
         });
     }
 

@@ -1,20 +1,19 @@
-import { Card } from './Card';
+import { CardWithImage } from './CardWithImage';
 import { IProduct } from '../../types';
-import { IEvents } from '../base/Events';
-import { EVENTS } from '../../utils/constants';
 
-export class CardCatalog extends Card<IProduct> {
+export class CardCatalog extends CardWithImage<IProduct> {
     protected categoryElement: HTMLElement;
-    protected events: IEvents;
+    protected onSelect: (id: string) => void;
+    protected currentId: string = '';
 
-    constructor(container: HTMLElement, events: IEvents) {
+    constructor(container: HTMLElement, onSelect: (id: string) => void) {
         super(container);
-        this.events = events;
 
+        this.onSelect = onSelect;
         this.categoryElement = container.querySelector('.card__category') as HTMLElement;
 
         this.container.addEventListener('click', () => {
-            this.events.emit(EVENTS.CARD_SELECT, { id: (this.container as HTMLElement).dataset.id });
+            this.onSelect(this.currentId);
         });
     }
 
@@ -23,6 +22,6 @@ export class CardCatalog extends Card<IProduct> {
     }
 
     set id(value: string) {
-        this.container.dataset.id = value;
+        this.currentId = value;
     }
 }

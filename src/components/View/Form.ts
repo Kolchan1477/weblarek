@@ -1,14 +1,11 @@
 import { Component } from '../base/Component';
-import { IEvents } from '../base/Events';
 
 export abstract class Form<T extends object> extends Component<T> {
     protected submitButton: HTMLButtonElement;
     protected errorsElement: HTMLElement;
-    protected events: IEvents;
 
-    constructor(container: HTMLElement, events: IEvents) {
+    constructor(container: HTMLElement) {
         super(container);
-        this.events = events;
 
         this.submitButton = container.querySelector('button[type="submit"]') as HTMLButtonElement;
         this.errorsElement = container.querySelector('.form__errors') as HTMLElement;
@@ -20,7 +17,7 @@ export abstract class Form<T extends object> extends Component<T> {
     }
 
     /**
-     * Устанавливает состояние кнопки отправки.
+     * Управляет состоянием кнопки отправки.
      */
     set buttonState(isEnabled: boolean) {
         this.submitButton.disabled = !isEnabled;
@@ -28,16 +25,10 @@ export abstract class Form<T extends object> extends Component<T> {
 
     /**
      * Выводит сообщения об ошибках.
+     * Для очистки ошибок передайте пустой массив.
      */
     set errors(errors: string[]) {
         this.errorsElement.textContent = errors.join('; ');
-    }
-
-    /**
-     * Очищает сообщения об ошибках.
-     */
-    protected clearErrors(): void {
-        this.errorsElement.textContent = '';
     }
 
     /**

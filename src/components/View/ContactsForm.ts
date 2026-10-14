@@ -1,24 +1,30 @@
 import { Form } from './Form';
 import { ICustomer } from '../../types';
-import { IEvents } from '../base/Events';
-import { EVENTS } from '../../utils/constants';
 
 export class ContactsForm extends Form<ICustomer> {
     protected emailInput: HTMLInputElement;
     protected phoneInput: HTMLInputElement;
+    protected changeCallback: (data: Partial<ICustomer>) => void;
+    protected submitCallback: () => void;
 
-    constructor(container: HTMLElement, events: IEvents) {
-        super(container, events);
+    constructor(
+        container: HTMLElement,
+        onChange: (data: Partial<ICustomer>) => void,
+        onSubmit: () => void
+    ) {
+        super(container);
 
+        this.changeCallback = onChange;
+        this.submitCallback = onSubmit;
         this.emailInput = container.querySelector('input[name="email"]') as HTMLInputElement;
         this.phoneInput = container.querySelector('input[name="phone"]') as HTMLInputElement;
 
         this.emailInput.addEventListener('input', () => {
-            this.events.emit(EVENTS.CONTACTS_CHANGE, { email: this.emailInput.value });
+            this.changeCallback({ email: this.emailInput.value });
         });
 
         this.phoneInput.addEventListener('input', () => {
-            this.events.emit(EVENTS.CONTACTS_CHANGE, { phone: this.phoneInput.value });
+            this.changeCallback({ phone: this.phoneInput.value });
         });
     }
 
@@ -31,6 +37,6 @@ export class ContactsForm extends Form<ICustomer> {
     }
 
     protected onSubmit(): void {
-        this.events.emit(EVENTS.CONTACTS_SUBMIT);
+        this.submitCallback();
     }
 }

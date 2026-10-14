@@ -1,37 +1,48 @@
 import { ICustomer, PaymentMethod, TErrors } from '../../types';
+import { IEvents } from '../base/Events';
+import { EVENTS } from '../../utils/constants';
 
 export class Customer {
     private payment: PaymentMethod = '';
     private address: string = '';
     private email: string = '';
     private phone: string = '';
+    protected events: IEvents;
+
+    constructor(events: IEvents) {
+        this.events = events;
+    }
 
     /**
-     * Устанавливает способ оплаты.
+     * Устанавливает способ оплаты и эмитит событие изменения данных заказа.
      */
     setPayment(method: PaymentMethod): void {
         this.payment = method;
+        this.events.emit(EVENTS.ORDER_CHANGE);
     }
 
     /**
-     * Устанавливает адрес доставки.
+     * Устанавливает адрес и эмитит событие изменения данных заказа.
      */
     setAddress(address: string): void {
         this.address = address;
+        this.events.emit(EVENTS.ORDER_CHANGE);
     }
 
     /**
-     * Устанавливает email покупателя.
+     * Устанавливает email и эмитит событие изменения контактов.
      */
     setEmail(email: string): void {
         this.email = email;
+        this.events.emit(EVENTS.CONTACTS_CHANGE);
     }
 
     /**
-     * Устанавливает телефон покупателя.
+     * Устанавливает телефон и эмитит событие изменения контактов.
      */
     setPhone(phone: string): void {
         this.phone = phone;
+        this.events.emit(EVENTS.CONTACTS_CHANGE);
     }
 
     /**
@@ -48,7 +59,6 @@ export class Customer {
 
     /**
      * Проверяет данные покупателя и возвращает объект с ошибками валидации.
-     * Если все поля заполнены — возвращает пустой объект.
      */
     validateBuyer(): TErrors {
         const errors: TErrors = {};
@@ -69,6 +79,7 @@ export class Customer {
 
     /**
      * Очищает данные покупателя.
+     * Событие не эмитится, так как этот метод вызывается только после успешного заказа.
      */
     clear(): void {
         this.payment = '';

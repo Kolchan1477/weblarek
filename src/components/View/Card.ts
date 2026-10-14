@@ -1,18 +1,21 @@
 import { Component } from '../base/Component';
 import { IProduct } from '../../types';
-import { CDN_URL, categoryMap } from '../../utils/constants';
+import { categoryMap } from '../../utils/constants';
 
+/**
+ * Базовый класс для всех карточек товара.
+ * Содержит только те поля и методы, которые есть у всех наследников:
+ * название и цену.
+ */
 export abstract class Card<T extends IProduct> extends Component<T> {
     protected titleElement: HTMLElement;
     protected priceElement: HTMLElement;
-    protected imageElement: HTMLImageElement;
 
     constructor(container: HTMLElement) {
         super(container);
 
         this.titleElement = container.querySelector('.card__title') as HTMLElement;
         this.priceElement = container.querySelector('.card__price') as HTMLElement;
-        this.imageElement = container.querySelector('.card__image') as HTMLImageElement;
     }
 
     /**
@@ -23,19 +26,13 @@ export abstract class Card<T extends IProduct> extends Component<T> {
     }
 
     /**
-     * Устанавливает цену товара. Если null — «Недоступно».
+     * Устанавливает цену товара.
+     * Если цена отсутствует — выводится «Бесценно».
      */
     set price(value: number | null) {
         this.priceElement.textContent = value === null
-            ? 'Недоступно'
+            ? 'Бесценно'
             : `${value} синапсов`;
-    }
-
-    /**
-     * Устанавливает изображение товара.
-     */
-    set image(value: string) {
-        this.setImage(this.imageElement, CDN_URL + value, this.titleElement.textContent ?? '');
     }
 
     /**
