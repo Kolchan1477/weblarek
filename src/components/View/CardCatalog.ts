@@ -3,25 +3,19 @@ import { IProduct } from '../../types';
 
 export class CardCatalog extends CardWithImage<IProduct> {
     protected categoryElement: HTMLElement;
-    protected onSelect: (id: string) => void;
-    protected currentId: string = '';
+    protected onSelect: () => void;
 
-    constructor(container: HTMLElement, onSelect: (id: string) => void) {
+    constructor(container: HTMLElement, onSelect: () => void) {
         super(container);
-
         this.onSelect = onSelect;
         this.categoryElement = container.querySelector('.card__category') as HTMLElement;
 
         this.container.addEventListener('click', () => {
-            this.onSelect(this.currentId);
+            this.onSelect();
         });
     }
 
     set category(value: string) {
         this.setCategory(value, this.categoryElement);
-    }
-
-    set id(value: string) {
-        this.currentId = value;
     }
 }

@@ -128,8 +128,8 @@ const contactsForm = new ContactsForm(
 events.on(EVENTS.ITEMS_CHANGED, () => {
     const cards = productsModel.getItems().map((item) => {
         const cardElement = cardCatalogTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement;
-        const card = new CardCatalog(cardElement, (id) => {
-            const product = productsModel.getItem(id);
+        const card = new CardCatalog(cardElement, () => {
+            const product = productsModel.getItem(item.id);   // ← id зашит в колбэк
             if (product) productsModel.setPreview(product);
         });
         return card.render({
@@ -168,8 +168,8 @@ events.on(EVENTS.BASKET_CHANGED, () => {
 
     const items = cartModel.getItems().map((item, index) => {
         const cardElement = cardBasketTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement;
-        const card = new CardBasket(cardElement, (id) => {
-            cartModel.removeItem(id);
+        const card = new CardBasket(cardElement, () => {
+            cartModel.removeItem(item.id);   // ← id зашит в колбэк
         });
         return card.render({
             price: item.price,

@@ -8,26 +8,20 @@ interface ICardBasketData extends IProduct {
 export class CardBasket extends Card<ICardBasketData> {
     protected indexElement: HTMLElement;
     protected deleteButton: HTMLButtonElement;
-    protected onDelete: (id: string) => void;
-    protected currentId: string = '';
+    protected onDelete: () => void;
 
-    constructor(container: HTMLElement, onDelete: (id: string) => void) {
+    constructor(container: HTMLElement, onDelete: () => void) {
         super(container);
-
         this.onDelete = onDelete;
         this.indexElement = container.querySelector('.basket__item-index') as HTMLElement;
         this.deleteButton = container.querySelector('.basket__item-delete') as HTMLButtonElement;
 
         this.deleteButton.addEventListener('click', () => {
-            this.onDelete(this.currentId);
+            this.onDelete();
         });
     }
 
     set index(value: number) {
         this.indexElement.textContent = String(value);
-    }
-
-    set id(value: string) {
-        this.currentId = value;
     }
 }
